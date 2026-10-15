@@ -10,10 +10,11 @@ from build123d import Align, BuildPart, BuildSketch, Locations, Mode, Plane, Pol
 
 import handrest as h
 
+STL = h.OUT_DIR
+
 OUT = Path(__file__).parent / "renders"
 TMP = OUT / "_trackpad.stl"
 
-KB_DEPTH, KB_HEIGHT = 132.5, 13.5
 KB_GAP = 3.0  # keyboard sits just behind the rest
 
 REST = "#d9d6cf"
@@ -46,18 +47,18 @@ def trackpad_mesh():
 
 def keyboard_meshes():
     y0 = h.DEPTH + KB_GAP
-    base = pv.Box((-h.KB_WIDTH / 2, h.KB_WIDTH / 2, y0, y0 + KB_DEPTH, 0, KB_HEIGHT - 4))
+    base = pv.Box((-h.KB_WIDTH / 2, h.KB_WIDTH / 2, y0, y0 + h.KB_DEPTH, 0, h.KB_HEIGHT - 4))
     caps = []
     pitch = 19.05
     cols, rows = 16, 6
     x_start = -h.KB_WIDTH / 2 + 6
     for r in range(rows):
-        y = y0 + 6 + r * (KB_DEPTH - 12) / rows
+        y = y0 + 6 + r * (h.KB_DEPTH - 12) / rows
         for c in range(cols):
             x = x_start + c * pitch
             if x + pitch - 2 > h.KB_WIDTH / 2 - 4:
                 break
-            caps.append(pv.Box((x + 1, x + pitch - 1, y + 1, y + (KB_DEPTH - 12) / rows - 1, KB_HEIGHT - 4, KB_HEIGHT)))
+            caps.append(pv.Box((x + 1, x + pitch - 1, y + 1, y + (h.KB_DEPTH - 12) / rows - 1, h.KB_HEIGHT - 4, h.KB_HEIGHT)))
     return base, pv.merge(caps)
 
 
@@ -78,9 +79,10 @@ def shot(meshes, path, camera, size=(1600, 1000), parallel=False):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    rest = pv.read("out/handrest_full.stl")
-    left = pv.read("out/handrest_left.stl")
-    right = pv.read("out/handrest_right.stl").translate((25, 0, 0))
+    rest = pv.read(str(STL / "handrest_full.stl"))
+    centre = pv.read(str(STL / "handrest_centre.stl"))
+    wing_left = pv.read(str(STL / "handrest_wing_left.stl")).translate((-20, 0, 0))
+    wing_right = pv.read(str(STL / "handrest_wing_right.stl")).translate((20, 0, 0))
     pad = trackpad_mesh()
     kb, caps = keyboard_meshes()
     desk = pv.Plane(center=(0, 100, -0.2), i_size=3000, j_size=3000)
@@ -94,7 +96,11 @@ def main():
         [(-150, -70, 45), (-85, 25, 6), (0, 0, 1)],
     )
     shot([(rest, REST), (pad, TRACKPAD), (kb, KEYBOARD), (caps, KEYCAP)], OUT / "side.png", [(-600, 130, 10), (0, 130, 10), (0, 0, 1)], size=(1600, 400), parallel=True)
-    shot([(desk, "#ffffff"), (left, REST), (right, "#c9c5bc")], OUT / "halves.png", [(40, -260, 300), (12, 65, 0), (0, 0, 1)])
+    shot(
+        [(desk, "#ffffff"), (centre, REST), (wing_left, "#c9c5bc"), (wing_right, "#c9c5bc")],
+        OUT / "pieces.png",
+        [(-120, -300, 300), (0, 65, 0), (0, 0, 1)],
+    )
     print("\n".join(str(p) for p in sorted(OUT.glob("*.png"))))
 
 

@@ -8,82 +8,102 @@ import sys
 
 from build123d import Edge, import_stl
 
-import handrest as h
+import handrest as hr
 
 # Bambu Lab build plates (X x Y mm), from bambulab.com tech specs.
 BEDS = {"A1 mini": (180, 180), "A1 / P1S / P2S / X1C": (256, 256), "H2D": (325, 320)}
 BED_MARGIN = 5.0  # keep this far off the plate edge
-
-failures = []
-
-
-def check(name, got, want, tol=0.05):
-    ok = abs(got - want) <= tol
-    print(f"{'ok  ' if ok else 'FAIL'} {name}: {got:.2f} (want {want:.2f})")
-    if not ok:
-        failures.append(name)
+MIN_SEAM_HEIGHT = 5.0  # seams must run through solid wing, not the 2 mm pocket floor
 
 
-def hits_along(shape, start, end):
-    """Sorted coordinates where a straight line enters and leaves the solid."""
-    segments = shape.intersect(Edge.make_line(start, end))
-    segments = segments if isinstance(segments, list) else [segments]
-    axis = [i for i in range(3) if start[i] != end[i]][0]
-    pts = []
-    for e in segments or []:
-        for v in e.vertices():
-            pts.append(round((v.X, v.Y, v.Z)[axis], 3))
-    return sorted(set(pts))
+def probe(shape, axis, **fixed):
+    """Sorted coordinates along `axis` where a line through `fixed` enters and leaves the solid."""
+    start = {"x": -400.0, "y": -400.0, "z": -400.0, **fixed}
+    end = {**start, axis: 400.0}
+    found = shape.intersect(Edge.make_line(tuple(start.values()), tuple(end.values())))
+    edges = found if isinstance(found, list) else [found] if found else []
+    index = "xyz".index(axis)
+    return sorted({round((v.X, v.Y, v.Z)[index], 3) for e in edges for v in e.vertices()})
 
 
-full = h.body()
-left = full & h.dovetail_keep(h.DOVETAIL_FIT)
-right = full - h.dovetail_keep(0)
+def main():
+    failures = []
 
-print("== Pocket vs Magic Trackpad (160.0 x 114.9, 4.9-10.9 tall) ==")
-y_mid = h.FRONT_MARGIN + h.POCKET_D / 2
-xs = hits_along(full, (-200, y_mid, h.FLOOR + 1), (200, y_mid, h.FLOOR + 1))
-check("pocket width", xs[2] - xs[1], h.TP_WIDTH + 2 * h.CLEARANCE)
-ys = hits_along(full, (0, -10, h.FLOOR + 1), (0, 200, h.FLOOR + 1))
-check("pocket starts behind front edge", ys[1], h.FRONT_MARGIN)
-check("pocket depth (open back, trackpad depth + front clearance)", h.DEPTH - ys[1], h.TP_DEPTH + 2 * h.CLEARANCE)
-zs = hits_along(full, (0, y_mid, -5), (0, y_mid, 50))
-check("pocket floor", zs[-1], h.FLOOR)
+    def check(name, got, want, tol=0.05):
+        ok = abs(got - want) <= tol
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {got:.2f} (want {want:.2f})")
+        if not ok:
+            failures.append(name)
 
-print("== Flush top ==")
-x_wing = h.TP_WIDTH / 2 + 30
-y_tp_front = h.FRONT_MARGIN + h.CLEARANCE
-y_tp_rear = y_tp_front + h.TP_DEPTH
-for label, y, tp_h in (("front", y_tp_front, h.TP_H_FRONT), ("rear", y_tp_rear, h.TP_H_REAR)):
-    zs = hits_along(full, (x_wing, y, -5), (x_wing, y, 50))
-    check(f"rest top at trackpad {label} edge = floor + trackpad", zs[-1], h.FLOOR + tp_h, tol=0.01)
+    def at_least(name, got, minimum):
+        ok = got >= minimum
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {got:.2f} (min {minimum:.2f})")
+        if not ok:
+            failures.append(name)
 
-print("== Overall vs NuPhy Air75 V2 (316.4 wide) ==")
-bb = full.bounding_box()
-check("width", bb.size.X, h.KB_WIDTH)
-check("depth", bb.size.Y, h.DEPTH)
+    parts = hr.build_parts()
+    full = parts["full"]
 
-print("== Split ==")
-check("halves do not overlap (cm3)", (left & right).volume / 1000 if (left & right) else 0.0, 0.0)
-gap = (full.volume - left.volume - right.volume) / 1000
-print(f"info dovetail glue gap volume: {gap:.2f} cm3")
-for name, p in (("left", left), ("right", right)):
-    print(f"info {name} half valid={p.is_valid}, solids={len(p.solids())}")
-    if not p.is_valid or len(p.solids()) != 1:
-        failures.append(f"{name} solid")
+    print(f"== Pocket vs Magic Trackpad ({hr.TP_WIDTH} x {hr.TP_DEPTH}, {hr.TP_H_FRONT}-{hr.TP_H_REAR} tall) ==")
+    y_mid = hr.FRONT_MARGIN + hr.POCKET_D / 2
+    xs = probe(full, "x", y=y_mid, z=hr.FLOOR + 1)
+    check("pocket width", xs[2] - xs[1], hr.TP_WIDTH + 2 * hr.CLEARANCE)
+    ys = probe(full, "y", x=0, z=hr.FLOOR + 1)
+    check("pocket starts behind front edge", ys[1], hr.FRONT_MARGIN)
+    check("pocket depth (open back)", hr.DEPTH - ys[1], hr.TP_DEPTH + 2 * hr.CLEARANCE)
+    check("pocket floor", probe(full, "z", x=0, y=y_mid)[-1], hr.FLOOR)
 
-print("== Exported files match model ==")
-for name, p in (("full", full), ("left", left), ("right", right)):
-    m = import_stl(f"out/handrest_{name}.stl").bounding_box()
-    check(f"{name}.stl width", m.size.X, p.bounding_box().size.X, tol=0.01)
-    check(f"{name}.stl depth", m.size.Y, p.bounding_box().size.Y, tol=0.01)
+    print("== Flush top ==")
+    x_wing = hr.TP_WIDTH / 2 + 30
+    y_tp_front = hr.FRONT_MARGIN + hr.CLEARANCE
+    for label, y, tp_h in (("front", y_tp_front, hr.TP_H_FRONT), ("rear", y_tp_front + hr.TP_DEPTH, hr.TP_H_REAR)):
+        top = probe(full, "z", x=x_wing, y=y)[-1]
+        check(f"rest top at trackpad {label} edge = floor + trackpad", top, hr.FLOOR + tp_h, tol=0.01)
 
-print("== Bambu Lab plate fit ==")
-for bed, (bx, by) in BEDS.items():
-    for name, p in (("full", full), ("left", left), ("right", right)):
-        s = p.bounding_box().size
-        fits = s.X + 2 * BED_MARGIN <= bx and s.Y + 2 * BED_MARGIN <= by
-        print(f"{'fits' if fits else '  - '} {bed:22} {name:5} {s.X:6.1f} x {s.Y:5.1f}")
+    print(f"== Overall vs NuPhy Air75 V2 ({hr.KB_WIDTH} x {hr.KB_DEPTH} x {hr.KB_HEIGHT}) ==")
+    bb = full.bounding_box()
+    check("width", bb.size.X, hr.KB_WIDTH)
+    check("depth", bb.size.Y, hr.DEPTH)
+    at_least("keyboard is taller than the rest's back edge", hr.KB_HEIGHT - hr.Z_REAR, 0.0)
 
-print("\nALL CHECKS PASSED" if not failures else f"\nFAILED: {failures}")
-sys.exit(1 if failures else 0)
+    print("== Split ==")
+    pieces = {k: v for k, v in parts.items() if k != "full"}
+    names = list(pieces)
+    for i, a in enumerate(names):
+        for b in names[i + 1 :]:
+            overlap = pieces[a] & pieces[b]
+            check(f"{a} and {b} do not overlap (cm3)", overlap.volume / 1000 if overlap else 0.0, 0.0)
+    for name, p in pieces.items():
+        ok = p.is_valid and len(p.solids()) == 1
+        print(f"{'ok  ' if ok else 'FAIL'} {name} is one valid solid")
+        if not ok:
+            failures.append(f"{name} solid")
+    for side in (-1, 1):
+        for y in hr.DOVETAIL_YS:
+            height = probe(full, "z", x=side * hr.SPLIT_X, y=y)[-1]
+            at_least(f"seam height at x={side * hr.SPLIT_X:.1f}, y={y:.1f}", height, MIN_SEAM_HEIGHT)
+    print(f"info dovetail glue gap volume: {(full.volume - sum(p.volume for p in pieces.values())) / 1000:.2f} cm3")
+
+    print("== Exported files match model ==")
+    for name, p in parts.items():
+        mesh = import_stl(str(hr.OUT_DIR / f"handrest_{name}.stl")).bounding_box()
+        check(f"{name}.stl width", mesh.size.X, p.bounding_box().size.X, tol=0.01)
+        check(f"{name}.stl depth", mesh.size.Y, p.bounding_box().size.Y, tol=0.01)
+
+    print("== Bambu Lab plate fit ==")
+    left, right = hr.wings_plate(parts)
+    plates = {**pieces, "wings (one plate)": left.fuse(right)}
+    for bed, (bx, by) in BEDS.items():
+        for name, p in plates.items():
+            s = p.bounding_box().size
+            fits = s.X + 2 * BED_MARGIN <= bx and s.Y + 2 * BED_MARGIN <= by
+            print(f"{'fits' if fits else '  - '} {bed:22} {name:18} {s.X:6.1f} x {s.Y:5.1f}")
+            if bed.startswith("A1 /") and not fits:
+                failures.append(f"{name} on 256 mm plate")
+
+    print("\nALL CHECKS PASSED" if not failures else f"\nFAILED: {failures}")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
