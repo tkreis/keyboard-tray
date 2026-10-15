@@ -62,10 +62,9 @@ Z_REAR = Z_FRONT + SLOPE * DEPTH
 OVERSHOOT = 5.0  # how far cutting tools reach past the part so cuts are clean
 
 # --- Bumpon recesses (under the side wings) --------------------------------
-# Deep enough that common 10 mm x 2.5-3 mm bumpons stick out only ~0.5 mm,
-# so the rest stays level with the keyboard.
+# Common 10 mm bumpons are 2.5-3 mm tall, so they stick out 0.5-1 mm.
 FOOT_D = 10.5
-FOOT_DEPTH = 2.5
+FOOT_DEPTH = 2.0
 FOOT_INSET = 15.0
 
 # --- Split into a centre piece and two wings -------------------------------
@@ -75,7 +74,7 @@ DOVETAIL_LEN = 8.0
 DOVETAIL_NECK = 7.0
 DOVETAIL_HEAD = 11.0
 DOVETAIL_FIT = 0.15  # removed from each flank of the male tab
-DOVETAIL_YS = (8.0, DEPTH * 0.45, DEPTH - 12.0)
+DOVETAIL_YS = (14.0, DEPTH * 0.5, DEPTH - 12.0)  # >= 8 mm of wing wall around each socket
 WING_GAP = 10.0  # space between the wings when printed on one plate
 
 
@@ -92,10 +91,10 @@ def body():
         # Sloped top: profile in the YZ plane, extruded across the full width.
         with BuildSketch(Plane.YZ):
             Polygon(
-                (-1, Z_FRONT - SLOPE),
-                (DEPTH + 1, Z_REAR + SLOPE),
-                (DEPTH + 1, Z_REAR + 2 * OVERSHOOT),
-                (-1, Z_REAR + 2 * OVERSHOOT),
+                (-OVERSHOOT, Z_FRONT - SLOPE * OVERSHOOT),
+                (DEPTH + OVERSHOOT, Z_REAR + SLOPE * OVERSHOOT),
+                (DEPTH + OVERSHOOT, Z_REAR + OVERSHOOT),
+                (-OVERSHOOT, Z_REAR + OVERSHOOT),
                 align=None,
             )
         extrude(amount=WIDTH, both=True, mode=Mode.SUBTRACT)
@@ -108,7 +107,7 @@ def body():
         with BuildSketch(Plane.XY.offset(FLOOR)):
             with Locations((0, FRONT_MARGIN)):
                 RectangleRounded(
-                    POCKET_W, POCKET_D + 4 * OVERSHOOT, TP_CORNER_R + CLEARANCE, align=(Align.CENTER, Align.MIN)
+                    POCKET_W, POCKET_D + OVERSHOOT, TP_CORNER_R + CLEARANCE, align=(Align.CENTER, Align.MIN)
                 )
         extrude(amount=Z_REAR + OVERSHOOT, mode=Mode.SUBTRACT)
 
@@ -123,7 +122,7 @@ def body():
 
 def centre_region(fit):
     """Space kept by the centre piece: |x| < SPLIT_X plus dovetail tabs reaching into each wing."""
-    tall = Z_REAR + 4 * OVERSHOOT
+    tall = Z_REAR + 2 * OVERSHOOT  # from -OVERSHOOT to above the top
     with BuildPart() as region:
         with Locations((0, -OVERSHOOT, -OVERSHOOT)):
             Box(2 * SPLIT_X, DEPTH + 2 * OVERSHOOT, tall, align=(Align.CENTER, Align.MIN, Align.MIN))
@@ -154,25 +153,21 @@ def wings_plate(parts):
     return left, right.translate((shift, 0, 0))
 
 
-def write_3mf(path, *shapes):
+def write_3mf(path, shapes, names):
     mesher = Mesher()
-    for i, shape in enumerate(shapes):
-        mesher.add_shape(shape, part_number=f"{path.stem}_{i}")
+    for shape, name in zip(shapes, names):
+        mesher.add_shape(shape, part_number=name)
     mesher.write(str(path))
 
 
 def main():
     OUT_DIR.mkdir(exist_ok=True)
-    for stale in ("left", "right"):
-        for ext in ("stl", "3mf"):
-            (OUT_DIR / f"handrest_{stale}.{ext}").unlink(missing_ok=True)
-
     parts = build_parts()
     export_step(parts["full"], str(OUT_DIR / "handrest_full.step"))
     for name, part in parts.items():
         export_stl(part, str(OUT_DIR / f"handrest_{name}.stl"))
-        write_3mf(OUT_DIR / f"handrest_{name}.3mf", part)
-    write_3mf(OUT_DIR / "handrest_wings.3mf", *wings_plate(parts))
+        write_3mf(OUT_DIR / f"handrest_{name}.3mf", [part], [f"handrest_{name}"])
+    write_3mf(OUT_DIR / "handrest_wings.3mf", wings_plate(parts), ["handrest_wing_left", "handrest_wing_right"])
 
     bb = parts["full"].bounding_box()
     print(f"size {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm")

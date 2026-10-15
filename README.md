@@ -11,7 +11,7 @@ Apple Magic Trackpad flush with its surface, like the lower half of a MacBook.
 - The pocket is open at the back, so the USB-C port and the power switch stay reachable.
 - The top front and side edges are rounded with a 4 mm radius. Seen from above, the front corners are rounded with a 10 mm radius.
 - The back edge is square, so the rest stays flush right up to the keyboard.
-- Four 10.5 x 2.5 mm recesses underneath take 10 mm rubber bumpons. They stick out about 0.5 mm, so the rest stays just below the keyboard's height.
+- Four 10.5 x 2 mm recesses underneath take 10 mm rubber bumpons (2.5-3 mm tall). They stick out 0.5-1 mm, which puts the back edge at 13.4-13.9 mm, level with the 13.5 mm keyboard.
 
 ![Setup](renders/setup.png)
 ![Side](renders/side.png)

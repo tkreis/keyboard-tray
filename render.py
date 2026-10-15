@@ -10,8 +10,6 @@ from build123d import Align, BuildPart, BuildSketch, Locations, Mode, Plane, Pol
 
 import handrest as h
 
-STL = h.OUT_DIR
-
 OUT = Path(__file__).parent / "renders"
 TMP = OUT / "_trackpad.stl"
 
@@ -79,10 +77,10 @@ def shot(meshes, path, camera, size=(1600, 1000), parallel=False):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    rest = pv.read(str(STL / "handrest_full.stl"))
-    centre = pv.read(str(STL / "handrest_centre.stl"))
-    wing_left = pv.read(str(STL / "handrest_wing_left.stl")).translate((-20, 0, 0))
-    wing_right = pv.read(str(STL / "handrest_wing_right.stl")).translate((20, 0, 0))
+    rest = pv.read(str(h.OUT_DIR / "handrest_full.stl"))
+    centre = pv.read(str(h.OUT_DIR / "handrest_centre.stl"))
+    wing_left = pv.read(str(h.OUT_DIR / "handrest_wing_left.stl")).translate((-20, 0, 0))
+    wing_right = pv.read(str(h.OUT_DIR / "handrest_wing_right.stl")).translate((20, 0, 0))
     pad = trackpad_mesh()
     kb, caps = keyboard_meshes()
     desk = pv.Plane(center=(0, 100, -0.2), i_size=3000, j_size=3000)
