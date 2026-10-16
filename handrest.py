@@ -40,10 +40,12 @@ TP_WIDTH = 160.0  # Magic Trackpad
 TP_DEPTH = 114.9
 TP_H_FRONT = 4.9
 TP_H_REAR = 10.9
-TP_CORNER_R = 9.0  # 2021+ and USB-C models; 2015 models are ~5 mm
+TP_CORNER_R = 8.625  # 2021+ and USB-C models; 2015 models are ~5 mm
 
 # --- Rest ------------------------------------------------------------------
-CLEARANCE = 0.4  # per side, around the trackpad
+# Pocket fit copied from a fit-tested community tray (KeyboardAndTrackpadTray.stl):
+# 160.25 mm wide with 8.75 mm corners, i.e. 0.125 mm clearance around an 8.625 mm corner.
+CLEARANCE = 0.125  # per side, around the trackpad
 FLOOR = 2.0  # pocket floor under the trackpad
 FRONT_MARGIN = 14.0  # rest surface in front of the trackpad
 TOP_ROUND = 4.0  # radius on the top front and side edges

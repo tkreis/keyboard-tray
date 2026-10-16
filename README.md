@@ -7,7 +7,7 @@ Apple Magic Trackpad flush with its surface, like the lower half of a MacBook.
 
 - Same width as the keyboard: 316.4 x 129.7 mm.
 - The top surface is one plane with the trackpad's slope: 6.2 mm at the front, 12.9 mm at the back.
-- The trackpad drops into a pocket with a 2 mm floor and 0.4 mm clearance per side.
+- The trackpad drops into a pocket with a 2 mm floor and 0.125 mm clearance per side.
 - The pocket is open at the back, so the USB-C port and the power switch stay reachable.
 - The top front and side edges are rounded with a 4 mm radius. Seen from above, the front corners are rounded with a 10 mm radius.
 - The back edge is square, so the rest stays flush right up to the keyboard.
@@ -49,6 +49,7 @@ uv venv -p 3.11 .venv && uv pip install -p .venv build123d pyvista
 .venv/bin/python render.py     # writes renders/
 ```
 
-`TP_CORNER_R` is 9 mm, which matches trackpads from 2021 onwards (Lightning and USB-C).
+The pocket fit is copied from a fit-tested community tray: 160.25 mm wide with 8.75 mm corners
+(`CLEARANCE = 0.125`, `TP_CORNER_R = 8.625`). It matches trackpads from 2021 onwards (Lightning and USB-C).
 The 2015 trackpad has sharper corners, about 5 mm, and does not fit this pocket; set `TP_CORNER_R = 5.0`
 for it. If the trackpad fits too tight or too loose, change `CLEARANCE`.
