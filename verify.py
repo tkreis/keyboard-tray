@@ -45,32 +45,38 @@ def main():
     full = parts["full"]
 
     print(f"== Pocket vs Magic Trackpad ({hr.TP_WIDTH} x {hr.TP_DEPTH}, {hr.TP_H_FRONT}-{hr.TP_H_REAR} tall) ==")
+    wall_z = hr.TOP_H - 1  # height where the cage walls are probed
+    floor_x = 72.0  # between the floor cutout and the side wall
+    pocket_rear = hr.FRONT_MARGIN + hr.POCKET_D
     y_mid = hr.FRONT_MARGIN + hr.POCKET_D / 2
-    xs = probe(full, "x", y=y_mid, z=hr.FLOOR + 1)
+    xs = probe(full, "x", y=y_mid, z=wall_z)
     check("pocket width", xs[2] - xs[1], hr.TP_WIDTH + 2 * hr.CLEARANCE)
-    ys = probe(full, "y", x=0, z=hr.FLOOR + 1)
+    ys = probe(full, "y", x=floor_x, z=wall_z)
     check("pocket starts behind front edge", ys[1], hr.FRONT_MARGIN)
-    check("pocket depth (open back)", hr.DEPTH - ys[1], hr.TP_DEPTH + 2 * hr.CLEARANCE)
-    check("pocket floor", probe(full, "z", x=0, y=y_mid)[-1], hr.FLOOR)
+    check("pocket depth (trackpad + slack)", ys[2] - ys[1], hr.TP_DEPTH + hr.POCKET_SLACK)
+    check("back wall thickness", ys[3] - ys[2], hr.BACK_WALL)
     # A point on the front-left corner arc, 45 degrees round from its centre.
-    r = hr.TP_CORNER_R + hr.CLEARANCE
-    arc_y = hr.FRONT_MARGIN + r - r * 0.5**0.5
-    arc_x = -hr.POCKET_W / 2 + r - r * 0.5**0.5
-    xs = probe(full, "x", y=arc_y, z=hr.FLOOR + 1)
-    check("pocket corner radius (point on 45 deg arc)", xs[1], arc_x, tol=0.02)
+    inset = hr.POCKET_R * (1 - 0.5**0.5)
+    corner_xs = probe(full, "x", y=hr.FRONT_MARGIN + inset, z=wall_z)
+    check("pocket corner radius (point on 45 deg arc)", corner_xs[1], -hr.POCKET_W / 2 + inset, tol=0.02)
+    slot_xs = probe(full, "x", y=hr.DEPTH - 1, z=wall_z)
+    check("cable slot in back wall", slot_xs[2] - slot_xs[1], hr.CABLE_SLOT_W)
 
     print("== Flush top ==")
-    x_wing = hr.TP_WIDTH / 2 + 30
-    y_tp_front = hr.FRONT_MARGIN + hr.CLEARANCE
-    for label, y, tp_h in (("front", y_tp_front, hr.TP_H_FRONT), ("rear", y_tp_front + hr.TP_DEPTH, hr.TP_H_REAR)):
-        top = probe(full, "z", x=x_wing, y=y)[-1]
-        check(f"rest top at trackpad {label} edge = floor + trackpad", top, hr.FLOOR + tp_h, tol=0.01)
+    tp_rear = hr.TP_Y + hr.TP_DEPTH
+    for label, y, tp_h in (("front", hr.TP_Y, hr.TP_H_FRONT), ("rear", tp_rear, hr.TP_H_REAR)):
+        floor = probe(full, "z", x=floor_x, y=y)[-1]
+        check(f"floor + trackpad at its {label} edge = top", floor + tp_h, hr.TOP_H, tol=0.01)
+    for label, y in (("front", hr.TP_Y), ("rear", tp_rear)):
+        check(f"wing top beside trackpad {label} edge", probe(full, "z", x=hr.TP_WIDTH / 2 + 30, y=y)[-1], hr.TOP_H, tol=0.01)
+    check("floor under trackpad rear (min thickness)", probe(full, "z", x=floor_x, y=pocket_rear - 1)[-1], hr.floor_z(pocket_rear - 1), tol=0.01)
 
     print(f"== Overall vs NuPhy Air75 V2 ({hr.KB_WIDTH} x {hr.KB_DEPTH} x {hr.KB_HEIGHT}) ==")
     bb = full.bounding_box()
     check("width", bb.size.X, hr.KB_WIDTH)
     check("depth", bb.size.Y, hr.DEPTH)
-    at_least("keyboard is taller than the rest's back edge", hr.KB_HEIGHT - hr.Z_REAR, 0.0)
+    check("height", bb.size.Z, hr.TOP_H)
+    at_least("keyboard is not lower than the rest", hr.KB_HEIGHT - hr.TOP_H, 0.0)
 
     print("== Split ==")
     pieces = {k: v for k, v in parts.items() if k != "full"}

@@ -22,20 +22,15 @@ KEYCAP = "#6b6f75"
 
 
 def trackpad_mesh():
-    y0 = h.FRONT_MARGIN + h.CLEARANCE
+    """Trackpad pushed against the front wall, bottom on the sloped floor, top at TOP_H."""
+    y0, y1 = h.TP_Y, h.TP_Y + h.TP_DEPTH
     with BuildPart() as tp:
-        with BuildSketch(Plane.XY.offset(h.FLOOR)):
+        with BuildSketch():
             with Locations((0, y0)):
                 RectangleRounded(h.TP_WIDTH, h.TP_DEPTH, h.TP_CORNER_R, align=(Align.CENTER, Align.MIN))
-        extrude(amount=h.TP_H_REAR)
+        extrude(amount=h.TOP_H)
         with BuildSketch(Plane.YZ):
-            Polygon(
-                (y0 - 1, h.FLOOR + h.TP_H_FRONT - h.SLOPE),
-                (y0 + h.TP_DEPTH + 1, h.FLOOR + h.TP_H_REAR + h.SLOPE),
-                (y0 + h.TP_DEPTH + 1, 40),
-                (y0 - 1, 40),
-                align=None,
-            )
+            Polygon((y0 - 1, h.floor_z(y0 - 1)), (y1 + 1, h.floor_z(y1 + 1)), (y1 + 1, -1), (y0 - 1, -1), align=None)
         extrude(amount=h.TP_WIDTH, both=True, mode=Mode.SUBTRACT)
     export_stl(tp.part, str(TMP))
     mesh = pv.read(str(TMP))
