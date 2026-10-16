@@ -78,7 +78,9 @@ def main():
         check(f"floor + trackpad at pocket {label} = top", floor + tp_h, hr.TOP_H, tol=0.01)
     for label, y in (("front", hr.TP_Y), ("rear", tp_rear)):
         check(f"wing top beside trackpad {label} edge", probe(full, "z", x=hr.TP_WIDTH / 2 + 30, y=y)[-1], hr.TOP_H, tol=0.01)
-    for x in (floor_x, 0.0, hr.SWITCH_NOTCH_X):  # beside, under the cable slot, under the switch notch
+    notch_floor = probe(full, "z", x=hr.SWITCH_NOTCH_X, y=pocket_rear + 1)[-1]
+    check("switch notch floor below top", hr.TOP_H - notch_floor, hr.SWITCH_NOTCH_DEPTH)
+    for x in (floor_x, 0.0):  # beside, and under the cable slot
         floor = probe(full, "z", x=x, y=pocket_rear - 0.5)[-1]
         check(f"floor at the back of the pocket, x={x:.1f}", floor, hr.floor_z(pocket_rear - 0.5), tol=0.01)
 

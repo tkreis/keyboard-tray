@@ -52,12 +52,13 @@ TOP_H = 13.0  # flat top of the whole rest
 CLEARANCE = 0.125  # per side, around the trackpad
 POCKET_D = 114.56  # as fit-tested; Apple lists the trackpad as 114.9 deep
 BACK_WALL = 5.24
-SWITCH_NOTCH_X = 69.25  # half-round relief in the back wall for the power switch
+SWITCH_NOTCH_X = 69.13  # half-round relief in the back wall for the power switch
 SWITCH_NOTCH_R = 2.5
+SWITCH_NOTCH_DEPTH = 10.99  # below the top, as in the reference
 FLOOR_CUTOUT_W = 130.0  # lightening hole under the trackpad; also lets you push it out
 FLOOR_CUTOUT_D = 90.0
 FLOOR_CUTOUT_R = 15.0
-FLOOR_CUTOUT_INSET = 12.0  # from the front of the pocket
+FLOOR_CUTOUT_INSET = 12.18  # from the front of the pocket
 CABLE_SLOT_W = 16.0  # gap in the back wall for the USB-C plug
 FRONT_MARGIN = 14.0  # rest surface in front of the trackpad
 TOP_ROUND = 4.0  # radius on the top front and side edges
@@ -147,7 +148,7 @@ def pocket():
 
         with Locations((0, POCKET_REAR, floor_z(POCKET_REAR))):
             Box(CABLE_SLOT_W, BACK_WALL + OVERSHOOT, TOP_H, align=(Align.CENTER, Align.MIN, Align.MIN))
-        with Locations((SWITCH_NOTCH_X, POCKET_REAR, floor_z(POCKET_REAR - SWITCH_NOTCH_R))):  # no dip into the floor
+        with Locations((SWITCH_NOTCH_X, POCKET_REAR, TOP_H - SWITCH_NOTCH_DEPTH)):
             Cylinder(SWITCH_NOTCH_R, TOP_H, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return tool.part
 
