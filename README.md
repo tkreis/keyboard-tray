@@ -5,7 +5,7 @@
 3D-printable palm rest that sits centred in front of a NuPhy Air75 V2 and holds an
 Apple Magic Trackpad flush with its surface, like the lower half of a MacBook.
 
-- Same width as the keyboard: 316.4 x 129.7 mm.
+- Same width as the keyboard: 316.4 x 129.2 mm.
 - The top surface is one plane with the trackpad's slope: 6.2 mm at the front, 12.9 mm at the back.
 - The trackpad drops into a pocket with a 2 mm floor and 0.125 mm clearance per side.
 - The pocket is open at the back, so the USB-C port and the power switch stay reachable.
@@ -24,8 +24,8 @@ You need a 256 mm plate (A1, P1S, P2S, X1C, H2D). The centre piece is too wide f
 
 | Plate | File | Size (mm) |
 |---|---|---|
-| 1 | `out/handrest_centre.3mf` | 200.5 x 129.7 x 12.9 |
-| 2 | `out/handrest_wings.3mf` (both wings) | 141.6 x 129.7 x 12.9 |
+| 1 | `out/handrest_centre.3mf` | 199.9 x 129.2 x 12.9 |
+| 2 | `out/handrest_wings.3mf` (both wings) | 142.2 x 129.2 x 12.9 |
 
 1. In Bambu Studio, open `handrest_centre.3mf`. Leave it flat side down, as it loads.
 2. Slice with 0.20 mm layers, 3 walls and 15 % infill, with no supports. Use PLA or PETG.
@@ -51,5 +51,5 @@ uv venv -p 3.11 .venv && uv pip install -p .venv build123d pyvista
 
 The pocket fit is copied from a fit-tested community tray: 160.25 mm wide with 8.75 mm corners
 (`CLEARANCE = 0.125`, `TP_CORNER_R = 8.625`). It matches trackpads from 2021 onwards (Lightning and USB-C).
-The 2015 trackpad has sharper corners, about 5 mm, and does not fit this pocket; set `TP_CORNER_R = 5.0`
-for it. If the trackpad fits too tight or too loose, change `CLEARANCE`.
+The 2015 trackpad has sharper corners, about 5 mm, and does not fit this pocket; set `TP_CORNER_R = 4.9`
+for it. 0.125 mm is tight for FDM; if your printer runs wide and the trackpad will not drop in, raise `CLEARANCE`.
