@@ -6,10 +6,12 @@
 Apple Magic Trackpad flush with its surface, like the lower half of a MacBook.
 
 - Same width as the keyboard: 316.4 x 133.8 mm, with a flat top 13 mm high.
-- The trackpad sits in a cage copied from a fit-tested community tray. Its pocket is 160.25 x 117.05 mm
-  with 8.75 mm corners and 0.125 mm side clearance.
+- The trackpad sits in a cage copied from a fit-tested community tray. Its pocket is 160.25 x 114.56 mm
+  with 8.75 mm corners and 0.125 mm side clearance. Apple lists the trackpad as 114.9 mm deep, so the
+  pocket is 0.34 mm shorter than that figure; this matches the reference tray, which fits.
 - The pocket floor slopes with the trackpad's wedge shape, so the trackpad's surface is level and flush with the top.
-- A 2.7 mm wall closes the back of the pocket. A 16 mm slot in it leaves room for the USB-C plug.
+- A 5.24 mm wall closes the back of the pocket. A 16 mm slot in it leaves room for the USB-C plug, and a
+  2.5 mm half-round notch near the back right corner clears the power switch, as in the reference.
 - A 130 x 90 mm hole in the pocket floor saves plastic and lets you push the trackpad out from below.
 - The 14 mm strip in front of the trackpad is the palm rest. Its top front and side edges are rounded with a 4 mm radius;
   seen from above, the front corners have a 10 mm radius.
@@ -36,7 +38,7 @@ You need a 256 mm plate (A1, P1S, P2S, X1C, H2D). The centre piece is too wide f
 3. Print it, then do the same with `handrest_wings.3mf`.
 4. Slide each wing onto the centre piece from above. Glue the dovetails with CA or PLA glue.
 5. Press four 10 mm bumpons into the recesses underneath.
-6. Set the trackpad in, back edge first, then push it forward against the front wall.
+6. Press the trackpad straight down into the pocket.
 
 `handrest_wing_left.3mf` and `handrest_wing_right.3mf` hold one wing each, if you want to print them separately.
 STL versions of every part are also in `out/`.
@@ -55,6 +57,6 @@ uv venv -p 3.11 .venv && uv pip install -p .venv build123d pyvista
 ```
 
 The pocket fit is copied from a fit-tested community tray: 160.25 mm wide with 8.75 mm corners
-(`CLEARANCE = 0.125`, `TP_CORNER_R = 8.625`, `POCKET_SLACK = 2.15`). It matches trackpads from 2021 onwards (Lightning and USB-C).
+(`CLEARANCE = 0.125`, `TP_CORNER_R = 8.625`, `POCKET_D = 114.56`). If the trackpad is too long for the pocket, raise `POCKET_D`. It matches trackpads from 2021 onwards (Lightning and USB-C).
 The 2015 trackpad has sharper corners, about 5 mm, and does not fit this pocket; set `TP_CORNER_R = 4.9`
 for it. 0.125 mm is tight for FDM; if your printer runs wide and the trackpad will not drop in, raise `CLEARANCE`.

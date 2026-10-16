@@ -45,12 +45,15 @@ TP_CORNER_R = 8.625  # pocket corner (8.75) minus CLEARANCE; 2021+ and USB-C mod
 
 # --- Rest ------------------------------------------------------------------
 # The trackpad cage follows a fit-tested community tray (KeyboardAndTrackpadTray.stl):
-# flat 13 mm top, pocket 160.25 x 117.05 mm with 8.75 mm corners, floor sloped with the
-# trackpad so its surface sits level and flush, 2.7 mm back wall, 130 x 90 mm floor cutout.
+# flat 13 mm top, pocket 160.25 x 114.56 mm with 8.75 mm corners, floor sloped with the
+# trackpad so its surface sits level and flush, 5.24 mm back wall with a power-switch notch,
+# 130 x 90 mm floor cutout.
 TOP_H = 13.0  # flat top of the whole rest
 CLEARANCE = 0.125  # per side, around the trackpad
-POCKET_SLACK = 2.15  # extra pocket depth, so the trackpad drops in at an angle
-BACK_WALL = 2.74
+POCKET_D = 114.56  # as fit-tested; Apple lists the trackpad as 114.9 deep
+BACK_WALL = 5.24
+SWITCH_NOTCH_X = 69.25  # half-round relief in the back wall for the power switch
+SWITCH_NOTCH_R = 2.5
 FLOOR_CUTOUT_W = 130.0  # lightening hole under the trackpad; also lets you push it out
 FLOOR_CUTOUT_D = 90.0
 FLOOR_CUTOUT_R = 15.0
@@ -62,9 +65,9 @@ PLAN_CORNER = 10.0  # front corners seen from above
 
 WIDTH = KB_WIDTH
 POCKET_W = TP_WIDTH + 2 * CLEARANCE
-POCKET_D = TP_DEPTH + POCKET_SLACK
 POCKET_R = TP_CORNER_R + CLEARANCE
-DEPTH = FRONT_MARGIN + POCKET_D + BACK_WALL
+POCKET_REAR = FRONT_MARGIN + POCKET_D
+DEPTH = POCKET_REAR + BACK_WALL
 
 # Pocket floor: a plane under the trackpad's sloped bottom, with the trackpad pushed
 # against the front wall. Its top then sits exactly at TOP_H.
@@ -121,8 +124,7 @@ def body():
 
 
 def pocket():
-    """Space cut for the trackpad: pocket above the sloped floor, floor cutout and cable slot."""
-    pocket_rear = FRONT_MARGIN + POCKET_D
+    """Space cut for the trackpad: pocket above the sloped floor, floor cutout, switch notch, cable slot."""
     with BuildPart() as tool:
         with BuildSketch():
             with Locations((0, FRONT_MARGIN)):
@@ -131,8 +133,8 @@ def pocket():
         with BuildSketch(Plane.YZ):
             Polygon(
                 (FRONT_MARGIN - OVERSHOOT, floor_z(FRONT_MARGIN - OVERSHOOT)),
-                (pocket_rear + OVERSHOOT, floor_z(pocket_rear + OVERSHOOT)),
-                (pocket_rear + OVERSHOOT, -OVERSHOOT),
+                (POCKET_REAR + OVERSHOOT, floor_z(POCKET_REAR + OVERSHOOT)),
+                (POCKET_REAR + OVERSHOOT, -OVERSHOOT),
                 (FRONT_MARGIN - OVERSHOOT, -OVERSHOOT),
                 align=None,
             )
@@ -143,8 +145,10 @@ def pocket():
                 RectangleRounded(FLOOR_CUTOUT_W, FLOOR_CUTOUT_D, FLOOR_CUTOUT_R, align=(Align.CENTER, Align.MIN))
         extrude(amount=TOP_H + 2 * OVERSHOOT)
 
-        with Locations((0, pocket_rear - OVERSHOOT, floor_z(pocket_rear))):
-            Box(CABLE_SLOT_W, BACK_WALL + 2 * OVERSHOOT, TOP_H, align=(Align.CENTER, Align.MIN, Align.MIN))
+        with Locations((0, POCKET_REAR, floor_z(POCKET_REAR))):
+            Box(CABLE_SLOT_W, BACK_WALL + OVERSHOOT, TOP_H, align=(Align.CENTER, Align.MIN, Align.MIN))
+        with Locations((SWITCH_NOTCH_X, POCKET_REAR, floor_z(POCKET_REAR))):
+            Cylinder(SWITCH_NOTCH_R, TOP_H, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return tool.part
 
 
@@ -199,7 +203,7 @@ def main():
 
     bb = parts["full"].bounding_box()
     print(f"size {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm")
-    print(f"flat top at {TOP_H:.2f} mm, pocket floor {TOP_H - floor_z(FRONT_MARGIN):.2f}-{TOP_H - floor_z(FRONT_MARGIN + POCKET_D):.2f} mm deep")
+    print(f"flat top at {TOP_H:.2f} mm, pocket floor {TOP_H - floor_z(TP_Y):.2f}-{TOP_H - floor_z(POCKET_REAR):.2f} mm deep")
     for name, part in parts.items():
         b = part.bounding_box()
         print(f"{name:10} {b.size.X:6.1f} x {b.size.Y:5.1f} mm, valid={part.is_valid}")

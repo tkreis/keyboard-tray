@@ -46,14 +46,15 @@ def main():
 
     print(f"== Pocket vs Magic Trackpad ({hr.TP_WIDTH} x {hr.TP_DEPTH}, {hr.TP_H_FRONT}-{hr.TP_H_REAR} tall) ==")
     wall_z = hr.TOP_H - 1  # height where the cage walls are probed
-    floor_x = 72.0  # between the floor cutout and the side wall
-    pocket_rear = hr.FRONT_MARGIN + hr.POCKET_D
+    floor_x = (hr.FLOOR_CUTOUT_W + hr.POCKET_W) / 4  # between the floor cutout and the side wall
+    wall_x = 40.0  # clear of the cable slot, switch notch and corner arcs
+    pocket_rear = hr.POCKET_REAR
     y_mid = hr.FRONT_MARGIN + hr.POCKET_D / 2
     xs = probe(full, "x", y=y_mid, z=wall_z)
     check("pocket width", xs[2] - xs[1], hr.TP_WIDTH + 2 * hr.CLEARANCE)
-    ys = probe(full, "y", x=floor_x, z=wall_z)
+    ys = probe(full, "y", x=wall_x, z=wall_z)
     check("pocket starts behind front edge", ys[1], hr.FRONT_MARGIN)
-    check("pocket depth (trackpad + slack)", ys[2] - ys[1], hr.TP_DEPTH + hr.POCKET_SLACK)
+    check("pocket depth (fit-tested reference)", ys[2] - ys[1], 114.56)
     check("back wall thickness", ys[3] - ys[2], hr.BACK_WALL)
     # A point on the front-left corner arc, 45 degrees round from its centre.
     inset = hr.POCKET_R * (1 - 0.5**0.5)
@@ -61,15 +62,23 @@ def main():
     check("pocket corner radius (point on 45 deg arc)", corner_xs[1], -hr.POCKET_W / 2 + inset, tol=0.02)
     slot_xs = probe(full, "x", y=hr.DEPTH - 1, z=wall_z)
     check("cable slot in back wall", slot_xs[2] - slot_xs[1], hr.CABLE_SLOT_W)
+    notch_ys = probe(full, "y", x=hr.SWITCH_NOTCH_X, z=wall_z)
+    check("power-switch notch depth", notch_ys[2] - pocket_rear, hr.SWITCH_NOTCH_R)
+    cut_xs = probe(full, "x", y=hr.FRONT_MARGIN + hr.FLOOR_CUTOUT_INSET + hr.FLOOR_CUTOUT_D / 2, z=0.5)
+    check("floor cutout width", cut_xs[2] - cut_xs[1], hr.FLOOR_CUTOUT_W)
+    cut_ys = probe(full, "y", x=0, z=0.5)
+    check("floor cutout starts behind pocket front", cut_ys[1] - hr.FRONT_MARGIN, hr.FLOOR_CUTOUT_INSET)
+    check("floor cutout depth", cut_ys[2] - cut_ys[1], hr.FLOOR_CUTOUT_D)
 
     print("== Flush top ==")
-    tp_rear = hr.TP_Y + hr.TP_DEPTH
-    for label, y, tp_h in (("front", hr.TP_Y, hr.TP_H_FRONT), ("rear", tp_rear, hr.TP_H_REAR)):
+    tp_rear = pocket_rear - 0.5  # the pocket is shorter than Apple's nominal depth; see POCKET_D
+    for label, y in (("front", hr.TP_Y), ("rear", tp_rear)):
         floor = probe(full, "z", x=floor_x, y=y)[-1]
-        check(f"floor + trackpad at its {label} edge = top", floor + tp_h, hr.TOP_H, tol=0.01)
+        tp_h = hr.TP_H_FRONT + hr.SLOPE * (y - hr.TP_Y)  # trackpad thickness at this depth
+        check(f"floor + trackpad at pocket {label} = top", floor + tp_h, hr.TOP_H, tol=0.01)
     for label, y in (("front", hr.TP_Y), ("rear", tp_rear)):
         check(f"wing top beside trackpad {label} edge", probe(full, "z", x=hr.TP_WIDTH / 2 + 30, y=y)[-1], hr.TOP_H, tol=0.01)
-    check("floor under trackpad rear (min thickness)", probe(full, "z", x=floor_x, y=pocket_rear - 1)[-1], hr.floor_z(pocket_rear - 1), tol=0.01)
+    at_least("floor thickness at the back of the pocket", probe(full, "z", x=floor_x, y=pocket_rear - 0.5)[-1], 1.8)
 
     print(f"== Overall vs NuPhy Air75 V2 ({hr.KB_WIDTH} x {hr.KB_DEPTH} x {hr.KB_HEIGHT}) ==")
     bb = full.bounding_box()
