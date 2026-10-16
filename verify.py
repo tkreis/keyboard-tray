@@ -13,7 +13,7 @@ import handrest as hr
 # Bambu Lab build plates (X x Y mm), from bambulab.com tech specs.
 BEDS = {"A1 mini": (180, 180), "A1 / P1S / P2S / X1C": (256, 256), "H2D": (325, 320)}
 BED_MARGIN = 5.0  # keep this far off the plate edge
-MIN_SEAM_HEIGHT = 5.0  # seams must run through solid wing, not the 2 mm pocket floor
+MIN_SEAM_HEIGHT = 5.0  # seams must run through solid wing, not the thin pocket floor
 
 
 def probe(shape, axis, **fixed):
@@ -54,7 +54,7 @@ def main():
     check("pocket width", xs[2] - xs[1], hr.TP_WIDTH + 2 * hr.CLEARANCE)
     ys = probe(full, "y", x=wall_x, z=wall_z)
     check("pocket starts behind front edge", ys[1], hr.FRONT_MARGIN)
-    check("pocket depth (fit-tested reference)", ys[2] - ys[1], 114.56)
+    check("pocket depth", ys[2] - ys[1], hr.POCKET_D)
     check("back wall thickness", ys[3] - ys[2], hr.BACK_WALL)
     # A point on the front-left corner arc, 45 degrees round from its centre.
     inset = hr.POCKET_R * (1 - 0.5**0.5)
@@ -78,7 +78,9 @@ def main():
         check(f"floor + trackpad at pocket {label} = top", floor + tp_h, hr.TOP_H, tol=0.01)
     for label, y in (("front", hr.TP_Y), ("rear", tp_rear)):
         check(f"wing top beside trackpad {label} edge", probe(full, "z", x=hr.TP_WIDTH / 2 + 30, y=y)[-1], hr.TOP_H, tol=0.01)
-    at_least("floor thickness at the back of the pocket", probe(full, "z", x=floor_x, y=pocket_rear - 0.5)[-1], 1.8)
+    for x in (floor_x, 0.0, hr.SWITCH_NOTCH_X):  # beside, under the cable slot, under the switch notch
+        floor = probe(full, "z", x=x, y=pocket_rear - 0.5)[-1]
+        check(f"floor at the back of the pocket, x={x:.1f}", floor, hr.floor_z(pocket_rear - 0.5), tol=0.01)
 
     print(f"== Overall vs NuPhy Air75 V2 ({hr.KB_WIDTH} x {hr.KB_DEPTH} x {hr.KB_HEIGHT}) ==")
     bb = full.bounding_box()

@@ -147,7 +147,7 @@ def pocket():
 
         with Locations((0, POCKET_REAR, floor_z(POCKET_REAR))):
             Box(CABLE_SLOT_W, BACK_WALL + OVERSHOOT, TOP_H, align=(Align.CENTER, Align.MIN, Align.MIN))
-        with Locations((SWITCH_NOTCH_X, POCKET_REAR, floor_z(POCKET_REAR))):
+        with Locations((SWITCH_NOTCH_X, POCKET_REAR, floor_z(POCKET_REAR - SWITCH_NOTCH_R))):  # no dip into the floor
             Cylinder(SWITCH_NOTCH_R, TOP_H, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return tool.part
 
