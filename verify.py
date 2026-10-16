@@ -80,8 +80,10 @@ def main():
         check(f"wing top beside trackpad {label} edge", probe(full, "z", x=hr.TP_WIDTH / 2 + 30, y=y)[-1], hr.TOP_H, tol=0.01)
     notch_floor = probe(full, "z", x=hr.SWITCH_NOTCH_X, y=pocket_rear + 1)[-1]
     check("switch notch floor below top", hr.TOP_H - notch_floor, hr.SWITCH_NOTCH_DEPTH, tol=0.01)
-    notch_xs = [x for x in probe(full, "x", y=pocket_rear + 1, z=wall_z) if 60 < x < 78]
-    check("switch notch centre x", sum(notch_xs) / 2, hr.SWITCH_NOTCH_X, tol=0.01)
+    window = hr.SWITCH_NOTCH_R + 2  # only the two notch edges fall inside this
+    notch_xs = [x for x in probe(full, "x", y=pocket_rear + 1, z=wall_z) if abs(x - hr.SWITCH_NOTCH_X) < window]
+    assert len(notch_xs) == 2, f"expected the two notch edges, got {notch_xs}"
+    check("switch notch centre x (reference: 69.13)", (notch_xs[0] + notch_xs[1]) / 2, 69.13, tol=0.01)
     for x in (floor_x, 0.0):  # beside, and under the cable slot
         floor = probe(full, "z", x=x, y=pocket_rear - 0.5)[-1]
         check(f"floor at the back of the pocket, x={x:.1f}", floor, hr.floor_z(pocket_rear - 0.5), tol=0.01)
