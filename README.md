@@ -49,5 +49,6 @@ uv venv -p 3.11 .venv && uv pip install -p .venv build123d pyvista
 .venv/bin/python render.py     # writes renders/
 ```
 
-Measure your trackpad's corner radius first. `TP_CORNER_R` defaults to 8 mm. If the
-trackpad fits too tight or too loose, change `CLEARANCE`.
+`TP_CORNER_R` is 9 mm, which matches trackpads from 2021 onwards (Lightning and USB-C).
+The 2015 trackpad has sharper corners, about 5 mm, and does not fit this pocket; set `TP_CORNER_R = 5.0`
+for it. If the trackpad fits too tight or too loose, change `CLEARANCE`.

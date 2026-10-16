@@ -40,7 +40,7 @@ TP_WIDTH = 160.0  # Magic Trackpad
 TP_DEPTH = 114.9
 TP_H_FRONT = 4.9
 TP_H_REAR = 10.9
-TP_CORNER_R = 8.0  # measure yours; pocket corners follow this
+TP_CORNER_R = 9.0  # 2021+ and USB-C models; 2015 models are ~5 mm
 
 # --- Rest ------------------------------------------------------------------
 CLEARANCE = 0.4  # per side, around the trackpad

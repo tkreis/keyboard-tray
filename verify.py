@@ -52,6 +52,12 @@ def main():
     check("pocket starts behind front edge", ys[1], hr.FRONT_MARGIN)
     check("pocket depth (open back)", hr.DEPTH - ys[1], hr.TP_DEPTH + 2 * hr.CLEARANCE)
     check("pocket floor", probe(full, "z", x=0, y=y_mid)[-1], hr.FLOOR)
+    # A point on the front-left corner arc, 45 degrees round from its centre.
+    r = hr.TP_CORNER_R + hr.CLEARANCE
+    arc_y = hr.FRONT_MARGIN + r - r * 0.5**0.5
+    arc_x = -hr.POCKET_W / 2 + r - r * 0.5**0.5
+    xs = probe(full, "x", y=arc_y, z=hr.FLOOR + 1)
+    check("pocket corner radius (point on 45 deg arc)", xs[1], arc_x, tol=0.02)
 
     print("== Flush top ==")
     x_wing = hr.TP_WIDTH / 2 + 30
