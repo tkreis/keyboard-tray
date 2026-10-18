@@ -41,11 +41,11 @@ TP_WIDTH = 160.0  # Magic Trackpad
 TP_DEPTH = 114.9
 TP_H_FRONT = 4.9
 TP_H_REAR = 10.9
-TP_CORNER_R = 8.625  # pocket corner (8.75) minus CLEARANCE; 2021+ and USB-C models, 2015 ones are ~5 mm
+TP_CORNER_R = 4.9  # 2015 model (pre-2021) has ~5 mm corners; 2021+ and USB-C models need 8.625
 
 # --- Rest ------------------------------------------------------------------
 # The trackpad cage follows a fit-tested community tray (KeyboardAndTrackpadTray.stl):
-# flat 13 mm top, pocket 160.25 x 114.56 mm with 8.75 mm corners, floor sloped with the
+# flat 13 mm top, pocket 160.25 x 114.56 mm (corners resized for the 2015 trackpad), floor sloped with the
 # trackpad so its surface sits level and flush, 5.24 mm back wall with a power-switch notch,
 # 130 x 90 mm floor cutout.
 TOP_H = 13.0  # flat top of the whole rest
@@ -59,7 +59,7 @@ FLOOR_CUTOUT_W = 130.0  # lightening hole under the trackpad; also lets you push
 FLOOR_CUTOUT_D = 90.0
 FLOOR_CUTOUT_R = 15.0
 FLOOR_CUTOUT_INSET = 12.18  # from the front of the pocket
-CABLE_SLOT_W = 16.0  # gap in the back wall for the USB-C plug
+CABLE_SLOT_W = 16.0  # gap in the back wall for the Lightning plug (2015 trackpad, port centred)
 FRONT_MARGIN = 14.0  # rest surface in front of the trackpad
 TOP_ROUND = 4.0  # radius on the top front and side edges
 PLAN_CORNER = 10.0  # front corners seen from above
