@@ -41,11 +41,11 @@ TP_WIDTH = 160.0  # Magic Trackpad
 TP_DEPTH = 114.9
 TP_H_FRONT = 4.9
 TP_H_REAR = 10.9
-TP_CORNER_R = 2.45  # 2015 model: gives Magic Tray's small-radius pocket corner; 2021+ and USB-C need 8.625
+TP_CORNER_R = 2.175  # 2015 model, from Magic Tray (MakerWorld 1060135); 2021+ and USB-C need 8.625
 
 # --- Rest ------------------------------------------------------------------
 # The trackpad cage follows a fit-tested community tray (KeyboardAndTrackpadTray.stl):
-# flat 13 mm top, pocket 160.25 x 114.56 mm (corners resized for the 2015 trackpad), floor sloped with the
+# flat 13 mm top, pocket 160.25 x 114.56 mm (corners from a second tray, see TP_CORNER_R), floor sloped with the
 # trackpad so its surface sits level and flush, 5.24 mm back wall with a power-switch notch,
 # 130 x 90 mm floor cutout.
 TOP_H = 13.0  # flat top of the whole rest
