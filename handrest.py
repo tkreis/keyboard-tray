@@ -41,7 +41,7 @@ TP_WIDTH = 160.0  # Magic Trackpad
 TP_DEPTH = 114.9
 TP_H_FRONT = 4.9
 TP_H_REAR = 10.9
-TP_CORNER_R = 2.45  # pocket corner 2.575, as in Magic Tray's "< 2020, Small corner radii" profile (2015 model); 2021+ and USB-C models need 8.625
+TP_CORNER_R = 2.45  # 2015 model: gives Magic Tray's small-radius pocket corner; 2021+ and USB-C need 8.625
 
 # --- Rest ------------------------------------------------------------------
 # The trackpad cage follows a fit-tested community tray (KeyboardAndTrackpadTray.stl):

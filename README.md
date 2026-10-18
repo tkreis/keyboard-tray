@@ -58,7 +58,8 @@ uv venv -p 3.11 .venv && uv pip install -p .venv build123d pyvista
 
 The pocket fit is copied from a fit-tested community tray: 160.25 mm wide
 (`CLEARANCE = 0.125`, `POCKET_D = 114.56`). If the trackpad is too long for the pocket, raise `POCKET_D`.
-The corners are set for the 2015 (pre-2021) trackpad, which has sharp corners. Their 2.575 mm radius is
-measured from the "< 2020, Small corner radii" profile of Jerrod H's "Magic Tray" on MakerWorld
-(model 1060135), whose pocket is 160.8 x 115.7 mm (`TP_CORNER_R = 2.45`). For trackpads from 2021 onwards (Lightning and USB-C),
+The corners are set for the 2015 (pre-2021) trackpad, which has sharp corners. They come from a second tray:
+the 2.575 mm pocket corner radius (`TP_CORNER_R = 2.45` plus `CLEARANCE`) is measured from the
+"< 2020, Small corner radii" profile of Jerrod H's "Magic Tray" on MakerWorld (model 1060135), whose pocket
+is 160.8 x 115.7 mm. The corners are not fit-tested in this pocket. For trackpads from 2021 onwards (Lightning and USB-C),
 set `TP_CORNER_R = 8.625` to get the reference tray's 8.75 mm corners. 0.125 mm is tight for FDM; if your printer runs wide and the trackpad will not drop in, raise `CLEARANCE`.
