@@ -47,7 +47,7 @@ def main():
     print(f"== Pocket vs Magic Trackpad ({hr.TP_WIDTH} x {hr.TP_DEPTH}, {hr.TP_H_FRONT}-{hr.TP_H_REAR} tall) ==")
     wall_z = hr.TOP_H - 1  # height where the cage walls are probed
     floor_x = (hr.FLOOR_CUTOUT_W + hr.POCKET_W) / 4  # between the floor cutout and the side wall
-    wall_x = 40.0  # clear of the cable slot, switch notch and corner arcs
+    wall_x = 40.0  # clear of the switch notch and corner arcs
     pocket_rear = hr.POCKET_REAR
     y_mid = hr.FRONT_MARGIN + hr.POCKET_D / 2
     xs = probe(full, "x", y=y_mid, z=wall_z)
@@ -60,8 +60,8 @@ def main():
     inset = hr.POCKET_R * (1 - 0.5**0.5)
     corner_xs = probe(full, "x", y=hr.FRONT_MARGIN + inset, z=wall_z)
     check("pocket corner radius (point on 45 deg arc)", corner_xs[1], -hr.POCKET_W / 2 + inset, tol=0.02)
-    slot_xs = probe(full, "x", y=hr.DEPTH - 1, z=wall_z)
-    check("cable slot in back wall", slot_xs[2] - slot_xs[1], hr.CABLE_SLOT_W)
+    back_xs = probe(full, "x", y=hr.DEPTH - 1, z=wall_z)
+    check("back wall is solid (no cable slot)", len(back_xs), 2)
     notch_ys = probe(full, "y", x=hr.SWITCH_NOTCH_X, z=wall_z)
     check("power-switch notch depth", notch_ys[2] - pocket_rear, hr.SWITCH_NOTCH_R)
     cut_xs = probe(full, "x", y=hr.FRONT_MARGIN + hr.FLOOR_CUTOUT_INSET + hr.FLOOR_CUTOUT_D / 2, z=0.5)
@@ -84,7 +84,7 @@ def main():
     notch_xs = [x for x in probe(full, "x", y=pocket_rear + 1, z=wall_z) if abs(x - hr.SWITCH_NOTCH_X) < window]
     assert len(notch_xs) == 2, f"expected the two notch edges, got {notch_xs}"
     check("switch notch centre x (reference: 69.13)", (notch_xs[0] + notch_xs[1]) / 2, 69.13, tol=0.01)
-    for x in (floor_x, 0.0):  # beside, and under the cable slot
+    for x in (floor_x, 0.0):  # beside the floor cutout, and on the centre line
         floor = probe(full, "z", x=x, y=pocket_rear - 0.5)[-1]
         check(f"floor at the back of the pocket, x={x:.1f}", floor, hr.floor_z(pocket_rear - 0.5), tol=0.01)
 

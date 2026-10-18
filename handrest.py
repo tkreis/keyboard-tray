@@ -59,7 +59,6 @@ FLOOR_CUTOUT_W = 130.0  # lightening hole under the trackpad; also lets you push
 FLOOR_CUTOUT_D = 90.0
 FLOOR_CUTOUT_R = 15.0
 FLOOR_CUTOUT_INSET = 12.18  # from the front of the pocket
-CABLE_SLOT_W = 16.0  # gap in the back wall for the Lightning plug (2015 trackpad, port centred)
 FRONT_MARGIN = 14.0  # rest surface in front of the trackpad
 TOP_ROUND = 4.0  # radius on the top front and side edges
 PLAN_CORNER = 10.0  # front corners seen from above
@@ -125,7 +124,7 @@ def body():
 
 
 def pocket():
-    """Space cut for the trackpad: pocket above the sloped floor, floor cutout, switch notch, cable slot."""
+    """Space cut for the trackpad: pocket above the sloped floor, floor cutout, switch notch."""
     with BuildPart() as tool:
         with BuildSketch():
             with Locations((0, FRONT_MARGIN)):
@@ -146,8 +145,6 @@ def pocket():
                 RectangleRounded(FLOOR_CUTOUT_W, FLOOR_CUTOUT_D, FLOOR_CUTOUT_R, align=(Align.CENTER, Align.MIN))
         extrude(amount=TOP_H + 2 * OVERSHOOT)
 
-        with Locations((0, POCKET_REAR, floor_z(POCKET_REAR))):
-            Box(CABLE_SLOT_W, BACK_WALL + OVERSHOOT, TOP_H, align=(Align.CENTER, Align.MIN, Align.MIN))
         with Locations((SWITCH_NOTCH_X, POCKET_REAR, TOP_H - SWITCH_NOTCH_DEPTH)):
             Cylinder(SWITCH_NOTCH_R, TOP_H, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return tool.part

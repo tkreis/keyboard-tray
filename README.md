@@ -10,8 +10,8 @@ Apple Magic Trackpad flush with its surface, like the lower half of a MacBook.
   with 2.3 mm corners for the pre-2021 trackpad, and 0.125 mm side clearance. Apple lists the trackpad as 114.9 mm deep, so the
   pocket is 0.34 mm shorter than that figure; this matches the reference tray, which fits.
 - The pocket floor slopes with the trackpad's wedge shape, so the trackpad's surface is level and flush with the top.
-- A 5.24 mm wall closes the back of the pocket. A 16 mm slot in it leaves room for the Lightning plug, and a
-  2.5 mm half-round notch near the back right corner clears the power switch, as in the reference.
+- A solid 5.24 mm wall closes the back of the pocket. A 2.5 mm half-round notch near the back right corner
+  clears the power switch, as in the reference.
 - A 130 x 90 mm hole in the pocket floor saves plastic and lets you push the trackpad out from below.
 - The 14 mm strip in front of the trackpad is the palm rest. Its top front and side edges are rounded with a 4 mm radius;
   seen from above, the front corners have a 10 mm radius.
